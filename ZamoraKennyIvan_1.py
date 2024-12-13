@@ -28,9 +28,10 @@ except ValueError: print("Invalid input. Please enter integers.")
 # Problem No. 4
 while(1):
     try:
-        n1 = int(input("Enter an integer: "))
-        n2 = float(input("Enter a float: "))
-        print("First Number: %.2f, Second Number: %d" % (n1, n2))
+        num1 = int(input("Enter an integer: "))
+        num2 = float(input("Enter a float: "))
+        print("First Number: %.2f, Second Number: %d" % (num1, num2))
+        print(f'First Number: {num1:.2f}, Second Number: {int(num2)}')
         break
     except ValueError: 
         print("Invalid input. Ensure the first is an integer and the second is a float.")
