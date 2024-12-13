@@ -38,7 +38,8 @@ while 1:
                     break
                 print(current, end="")
                 current += 1
-            print()
+            if current <= max_num or j == i - 1:  # Only print a new line if numbers were printed
+                print()
         break
     except ValueError:
         print("Invalid input! Please enter a valid number.")
@@ -55,7 +56,7 @@ while 1:
         num = int(input("Enter a number. 0 to exit: "))
         if num == 0:
             if count_odd == 0:
-                print("No odd numbers were entered.")
+                print("Exception has occured: ZeroDivisionError")
                 break
             avg = sum_odd / count_odd
             sqrt = sum_odd ** 0.5

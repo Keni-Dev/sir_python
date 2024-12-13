@@ -6,6 +6,8 @@ except ValueError: print("Invalid input. Please enter integers.")
 #n1, n2 = map(int, input("Enter two numbers: ").split())
 #print(str(n1) * n2)
 
+print()  # Add a blank line for separation
+
 # Problem No. 2
 try:
     h = int(input("Enter height: "))
@@ -19,11 +21,15 @@ except ValueError: print("Invalid height. Enter an integer >= 2.")
 #for _ in range(h - 2): print("+          +")
 #print("+{}+".format("=" * 10))
 
+print()  # Add a blank line for separation
+
 # Problem No. 3
 try:
     n1, n2 = map(int, input("Enter two numbers: ").split())
     print(f"The sum of all three numbers are {(n1 * n2) + n2 + (n2 * 6)}.")
 except ValueError: print("Invalid input. Please enter integers.")
+
+print()  # Add a blank line for separation
 
 # Problem No. 4
 while(1):
@@ -37,7 +43,9 @@ while(1):
         print("Invalid input. Ensure the first is an integer and the second is a float.")
         continue
 
+print()  # Add a blank line for separation
+
 # Problem No. 5
 sep = input("Enter separator character/s: ")
 end = input("Enter ending character/s: ")
-print("I", "love", "Python", sep=sep*2, end=end*2)
+print("I", "love", "Python", sep=sep*2, end=end)
