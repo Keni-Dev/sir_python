@@ -26,7 +26,7 @@ print()  # Add a blank line for separation
 # Problem No. 3
 try:
     n1, n2 = map(int, input("Enter two numbers: ").split())
-    print(f"The sum of all three numbers are {(n1 * n2) + n2 + (n2 * 6)}.")
+    print(f"The sum of all three numbers are {int((str(n1) * n2)) + n2 + (n2 * 6)}.")
 except ValueError: print("Invalid input. Please enter integers.")
 
 print()  # Add a blank line for separation

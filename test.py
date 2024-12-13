@@ -1,13 +1,6 @@
 try:
-    blocks = int(input("Enter the number of blocks: "))
-    height = 0
-    layer = 1
-
-    while blocks >= layer:
-        blocks -= layer
-        height += 1
-        layer += 1
-
-    print(f"The height of the pyramid is {height}.")
-except ValueError:
-    print("Invalid input! Please enter a valid number.")
+    n1, n2 = map(int, input("Enter two numbers: ").split())
+    print(f"The sum of all three numbers are {int((str(n1) * n2)) + n2 + (n2 * 6)}.")
+    print(int((str(n1) * n2)))
+except ValueError: print("Invalid input. Please enter integers.")
+print (333+3+18)
