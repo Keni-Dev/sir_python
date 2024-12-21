@@ -1,0 +1,5 @@
+# GUI requirements
+tk
+
+# Image processing
+Pillow>=10.0.0
