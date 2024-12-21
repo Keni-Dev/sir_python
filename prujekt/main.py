@@ -35,7 +35,6 @@ def create_account():
 
     print("\nAccount created successfully!")
     generate_receipt("ACCOUNT CREATION", account, initial_deposit)
-    return
 
 def add_transaction(account_index, transaction_type, amount, recipient=None):
     timestamp = datetime.now()
