@@ -1,3 +1,11 @@
+import pytest
+from datetime import datetime
+import io
+from unittest.mock import patch
+import random
+
+# Your ATM code (atm.py)
+# Global lists to store data
 from datetime import datetime
 import random
 
@@ -35,6 +43,7 @@ def create_account():
 
     print("\nAccount created successfully!")
     generate_receipt("ACCOUNT CREATION", account, initial_deposit)
+
     return
 
 def add_transaction(account_index, transaction_type, amount, recipient=None):
@@ -226,5 +235,147 @@ def main():
         else:
             print("Invalid choice. Please try again.")
 
-if __name__ == "__main__":
-    main()
+@pytest.fixture
+def test_account():
+    global accounts
+    accounts = [] #Clear accounts before each test
+    account = {
+        'account_number': '12',
+        'name': 'Test User',
+        'pin': '1234',
+        'balance': 1000.0,
+        'transaction_history': []
+    }
+    accounts.append(account)
+    global current_account_index
+    current_account_index = 0
+    return account
+
+def test_generate_account_number():
+    global accounts
+    accounts = []
+    num1 = generate_account_number()
+    assert num1 is not None
+    accounts.append({'account_number': num1})
+    num2 = generate_account_number()
+    assert num2 is not None
+    assert num1 != num2
+
+def test_create_account(monkeypatch):
+    inputs = iter(['Test User', '1234', '1000'])
+    monkeypatch.setattr('builtins.input', lambda _: next(inputs))
+    create_account()
+    assert len(accounts) == 1
+    assert accounts[0]['name'] == 'Test User'
+    assert accounts[0]['pin'] == '1234'
+    assert accounts[0]['balance'] == 1000.0
+
+def test_create_account_invalid_pin(monkeypatch):
+    inputs = iter(['Test User', '123', '12345', '1234', '1000'])
+    monkeypatch.setattr('builtins.input', lambda _: next(inputs))
+    create_account()
+    assert len(accounts) == 1
+
+def test_login_success(test_account):
+    inputs = iter(['12', '1234'])
+    with patch('builtins.input', lambda _: next(inputs)):
+        assert login() is True
+        assert current_account_index == 0
+
+def test_login_fail_account_number():
+    inputs = iter(['99', '1234'])
+    with patch('builtins.input', lambda _: next(inputs)):
+        assert login() is False
+        assert current_account_index is None
+
+def test_login_fail_pin():
+    inputs = iter(['12', '0000'])
+    with patch('builtins.input', lambda _: next(inputs)):
+        assert login() is False
+        assert current_account_index is None
+
+def test_check_balance(test_account, capsys):
+    check_balance()
+    captured = capsys.readouterr()
+    assert "Current Balance: ₱1000.00" in captured.out
+
+def test_deposit(test_account):
+    inputs = iter(['500'])
+    with patch('builtins.input', lambda _: next(inputs)):
+        deposit()
+    assert accounts[0]['balance'] == 1500.0
+
+def test_deposit_invalid(test_account, capsys):
+    inputs = iter(['-500'])
+    with patch('builtins.input', lambda _: next(inputs)):
+        deposit()
+    captured = capsys.readouterr()
+    assert "Invalid amount." in captured.out
+    assert accounts[0]['balance'] == 1000.0
+
+def test_withdraw_sufficient_funds(test_account):
+    inputs = iter(['500'])
+    with patch('builtins.input', lambda _: next(inputs)):
+        withdraw()
+    assert accounts[0]['balance'] == 500.0
+
+def test_withdraw_insufficient_funds(test_account, capsys):
+    inputs = iter(['1500'])
+    with patch('builtins.input', lambda _: next(inputs)):
+        withdraw()
+    captured = capsys.readouterr()
+    assert "Insufficient funds." in captured.out
+    assert accounts[0]['balance'] == 1000.0
+
+def test_withdraw_invalid_amount(test_account, capsys):
+    inputs = iter(['-500'])
+    with patch('builtins.input', lambda _: next(inputs)):
+        withdraw()
+    captured = capsys.readouterr()
+    assert "Invalid amount." in captured.out
+    assert accounts[0]['balance'] == 1000.0
+
+def test_transfer_success(test_account):
+    accounts.append({'account_number': '13', 'name': 'Recipient', 'pin': '5678', 'balance': 500, 'transaction_history': []})
+    inputs = iter(['13', '500'])
+    with patch('builtins.input', lambda _: next(inputs)):
+        transfer()
+    assert accounts[0]['balance'] == 500.0
+    assert accounts[1]['balance'] == 1000.0
+
+def test_transfer_recipient_not_found(test_account, capsys):
+    inputs = iter(['99', '500'])
+    with patch('builtins.input', lambda _: next(inputs)):
+        transfer()
+    captured = capsys.readouterr()
+    assert "Recipient account not found." in captured.out
+    assert accounts[0]['balance'] == 1000.0
+
+def test_transfer_insufficient_funds(test_account, capsys):
+    accounts.append({'account_number': '13', 'name': 'Recipient', 'pin': '5678', 'balance': 500, 'transaction_history': []})
+    inputs = iter(['13', '1500'])
+    with patch('builtins.input', lambda _: next(inputs)):
+        transfer()
+    captured = capsys.readouterr()
+    assert "Insufficient funds." in captured.out
+    assert accounts[0]['balance'] == 1000.0
+
+def test_view_transaction_history(test_account, capsys):
+    add_transaction(0, "TEST", 100)
+    view_transaction_history()
+    captured = capsys.readouterr()
+    assert "Type: TEST" in captured.out
+    assert "Amount: ₱100.00" in captured.out
+
+def test_generate_receipt(test_account, capsys):
+    generate_receipt("TEST", test_account, 500)
+    captured = capsys.readouterr()
+    assert "TRANSACTION RECEIPT" in captured.out
+    assert "Amount: ₱500.00" in captured.out
+
+def test_generate_receipt_transfer(test_account, capsys):
+    recipient = {'account_number': '13', 'name': 'Recipient', 'balance': 500}
+    generate_receipt("TRANSFER", test_account, 500, recipient)
+    captured = capsys.readouterr()
+    assert "Recipient Account: 13" in captured.out
+    assert "Recipient Name: Recipient" in captured.out
