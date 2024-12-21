@@ -1,7 +1,6 @@
 from datetime import datetime
 import random
 
-# Global lists to store data
 accounts = []
 current_account_index = None
 
@@ -59,7 +58,7 @@ def login():
             print(f"\nWelcome, {account['name']}!")
             return True
     print("Invalid account number or PIN.")
-    current_account_index = None  # Explicitly set to None on failed login
+    current_account_index = None  # if login fail
     return False
 
 def check_balance():
@@ -129,11 +128,11 @@ def transfer():
         print("Insufficient funds.")
         return
 
-    # Perform transfer
+    # perform transfer
     accounts[current_account_index]['balance'] -= amount
     accounts[recipient_index]['balance'] += amount
 
-    # Record transactions for both accounts
+    # record transactions for both accounts
     add_transaction(current_account_index, "TRANSFER", amount, recipient_acc)
     add_transaction(recipient_index, "TRANSFER RECEIVED", amount, accounts[current_account_index]['account_number'])
 
@@ -218,7 +217,7 @@ def main():
                     else:
                         print("Invalid choice. Please try again.")
             else:
-                continue  # Go back to main menu if login fails.
+                continue  
         elif choice == "3":
             print("Thank you for using our ATM Banking System.")
             break
