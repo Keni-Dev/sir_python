@@ -1,3 +1,9 @@
+# Download the requirements.txt
+# type pip install -r requirements.txt
+# run the main_gui.py file
+
+# Features: GUI and image generator for reciepts
+
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
