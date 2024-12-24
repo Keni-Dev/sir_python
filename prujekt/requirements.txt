@@ -1,5 +1,8 @@
-# GUI requirements
-tk
-
-# Image processing
+# for image generation for reciepts
 Pillow>=10.0.0
+
+# for gui
+tk>=0.1.0
+
+# for tui
+rich>=13.0.0
