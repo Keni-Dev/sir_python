@@ -396,3 +396,8 @@ class ATMGui:
         global current_account_index
         current_account_index = None
         self.show_main_menu()
+
+
+root = tk.Tk()
+app = ATMGui(root)
+root.mainloop()
