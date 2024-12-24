@@ -1,15 +1,8 @@
-import random, os, sys, time
+import random, os
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
-from rich.align import Align
-from rich.text import Text
-from rich.prompt import Prompt, FloatPrompt
-from rich.style import Style
 
 # --- Shared Data and Functions ---
 accounts = []
