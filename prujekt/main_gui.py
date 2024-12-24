@@ -11,11 +11,9 @@ import random
 from PIL import Image, ImageDraw, ImageFont
 import os
 
-# Global lists to store data
 accounts = []
 current_account_index = None
 
-# Create receipts directory if it doesn't exist
 if not os.path.exists('./receipts'):
     os.makedirs('./receipts')
 
@@ -25,7 +23,6 @@ class ATMGui:
         self.root.title("ATM Banking System")
         self.root.geometry("600x600")
         
-        # Center the window
         self.center_window()
         
         # Create main container
@@ -233,9 +230,66 @@ class ATMGui:
         ttk.Button(self.banking_menu_frame, text="Withdraw", command=lambda: self.show_transaction('withdraw')).grid(row=2, column=1, pady=10)
         ttk.Button(self.banking_menu_frame, text="Transfer", command=lambda: self.show_transaction('transfer')).grid(row=3, column=0, pady=10)
         ttk.Button(self.banking_menu_frame, text="Transaction History", command=self.show_history).grid(row=3, column=1, pady=10)
-        ttk.Button(self.banking_menu_frame, text="Logout", command=self.logout).grid(row=4, column=0, columnspan=2, pady=20)
+        ttk.Button(self.banking_menu_frame, text="Change PIN", command=self.show_change_pin).grid(row=4, column=0, pady=10)
+        ttk.Button(self.banking_menu_frame, text="Logout", command=self.logout).grid(row=4, column=1, pady=10)
         
         self.banking_menu_frame.grid(row=0, column=0)
+    
+    # New show_change_pin method
+    def show_change_pin(self):
+        self.clear_frames()
+        
+        ttk.Label(self.transaction_frame, text="Change PIN", font=('Helvetica', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=20)
+        
+        # Current PIN
+        ttk.Label(self.transaction_frame, text="Current PIN:").grid(row=1, column=0, pady=5)
+        current_pin_entry = ttk.Entry(self.transaction_frame, show="*")
+        current_pin_entry.grid(row=1, column=1, pady=5)
+        
+        # New PIN
+        ttk.Label(self.transaction_frame, text="New PIN (4 digits):").grid(row=2, column=0, pady=5)
+        new_pin_entry = ttk.Entry(self.transaction_frame, show="*")
+        new_pin_entry.grid(row=2, column=1, pady=5)
+        
+        # Confirm New PIN
+        ttk.Label(self.transaction_frame, text="Confirm New PIN:").grid(row=3, column=0, pady=5)
+        confirm_pin_entry = ttk.Entry(self.transaction_frame, show="*")
+        confirm_pin_entry.grid(row=3, column=1, pady=5)
+        
+        def change_pin():
+            current_pin = current_pin_entry.get()
+            new_pin = new_pin_entry.get()
+            confirm_pin = confirm_pin_entry.get()
+            
+            account = accounts[current_account_index]
+            
+            if current_pin != account['pin']:
+                messagebox.showerror("Error", "Incorrect current PIN.")
+                return
+            if new_pin != confirm_pin:
+                messagebox.showerror("Error", "New PIN and confirmation do not match.")
+                return
+            if len(new_pin) != 4 or not new_pin.isdigit():
+                messagebox.showerror("Error", "New PIN must be 4 digits.")
+                return
+            
+            # Update the PIN
+            account['pin'] = new_pin
+            
+            # Record the PIN change in transaction history
+            self.add_transaction("PIN CHANGE", 0)
+            
+            # Generate a receipt
+            receipt_path = self.generate_receipt_image("PIN CHANGE", account)
+            
+            messagebox.showinfo("Success", f"PIN changed successfully.\nReceipt saved as: {receipt_path}")
+            self.show_banking_menu()
+        
+        ttk.Button(self.transaction_frame, text="Change PIN", command=change_pin).grid(row=4, column=0, columnspan=2, pady=20)
+        ttk.Button(self.transaction_frame, text="Back", command=self.show_banking_menu).grid(row=5, column=0, columnspan=2)
+        
+        self.transaction_frame.grid(row=0, column=0)
+    
 
     def show_transaction(self, trans_type):
         self.clear_frames()

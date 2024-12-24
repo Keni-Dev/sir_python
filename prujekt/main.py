@@ -175,6 +175,40 @@ def generate_receipt(transaction_type, account, amount=None, recipient=None):
     print("Thank you for banking with us!")
     print("=" * 40 + "\n")
 
+def change_pin():
+    if current_account_index is None:
+        print("You are not logged in.")
+        return
+
+    account = accounts[current_account_index]
+
+    # Verify current PIN
+    current_pin = input("\nEnter your current PIN: ")
+    if current_pin != account['pin']:
+        print("Incorrect current PIN.")
+        return
+
+    # Get new PIN
+    while True:
+        new_pin = input("Enter your new 4-digit PIN: ")
+        if len(new_pin) != 4 or not new_pin.isdigit():
+            print("Invalid PIN. Please enter 4 digits.")
+            continue
+        confirm_pin = input("Confirm your new PIN: ")
+        if new_pin != confirm_pin:
+            print("PINs do not match. Please try again.")
+            continue
+        break
+
+    # Update the PIN
+    account['pin'] = new_pin
+
+    # Record the PIN change in transaction history
+    add_transaction(current_account_index, "PIN CHANGE", 0)
+
+    print("PIN changed successfully.")
+    generate_receipt("PIN CHANGE", account)
+
 def main():
     while True:
         print("\n=== ATM Banking System ===")
@@ -195,9 +229,10 @@ def main():
                     print("3. Withdraw")
                     print("4. Transfer")
                     print("5. Transaction History")
-                    print("6. Logout")
+                    print("6. Change PIN")
+                    print("7. Logout")
 
-                    operation = input("Enter your choice (1-6): ")
+                    operation = input("Enter your choice (1-7): ")
 
                     if operation == "1":
                         check_balance()
@@ -210,6 +245,8 @@ def main():
                     elif operation == "5":
                         view_transaction_history()
                     elif operation == "6":
+                        change_pin()
+                    elif operation == "7":
                         global current_account_index
                         current_account_index = None
                         print("Logged out successfully.")
@@ -217,7 +254,7 @@ def main():
                     else:
                         print("Invalid choice. Please try again.")
             else:
-                continue  
+                continue
         elif choice == "3":
             print("Thank you for using our ATM Banking System.")
             break
