@@ -18,7 +18,7 @@ current_account_index = None
 
 def generate_account_number():
     while True:
-        acc_num = str(random.randint(1, 99))
+        acc_num = str(random.randint(1, 20))
         if not any(account['account_number'] == acc_num for account in accounts):
             return acc_num
 
