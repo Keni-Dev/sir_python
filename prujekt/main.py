@@ -479,7 +479,7 @@ class ATMGui:
         ttk.Label(self.main_menu_frame, text="ATM Banking System", font=('Helvetica', 16, 'bold')).grid(row=0, column=0, pady=20)
         ttk.Button(self.main_menu_frame, text="Create Account", command=self.show_create_account).grid(row=1, column=0, pady=10)
         ttk.Button(self.main_menu_frame, text="Login", command=self.show_login).grid(row=2, column=0, pady=10)
-        ttk.Button(self.main_menu_frame, text="Exit", command=self.root.quit).grid(row=3, column=0, pady=10)
+        ttk.Button(self.main_menu_frame, text="Exit", command=self.root.destroy).grid(row=3, column=0, pady=10)
         self.main_menu_frame.grid(row=0, column=0)
 
     def show_create_account(self):
