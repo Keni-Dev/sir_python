@@ -1,5 +1,7 @@
 import random, os, sys, time
 import tkinter as tk
+import ttkbootstrap as tbs
+import customtkinter
 from tkinter import ttk, messagebox
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
@@ -60,7 +62,6 @@ def run_tui():
     HEADER_STYLE = Style(color="blue", bold=True)
     SUCCESS_STYLE = Style(color="green", bold=True)
     ERROR_STYLE = Style(color="red", bold=True)
-    HIGHLIGHT_STYLE = Style(color="yellow")
 
     def clear_screen():
         console.clear()
@@ -169,10 +170,15 @@ def run_tui():
         clear_screen()
         display_header("Create New Account")
 
-        name = Prompt.ask("[blue]Enter your full name")
+        while True:
+            name = Prompt.ask("[blue]Enter your full name")
+            if not name or any(char.isdigit() for char in name):
+                display_message("Invalid name.", "error")
+                continue
+            break
 
         while True:
-            pin = Prompt.ask("[blue]Create a 4-digit PIN", password=True)
+            pin = Prompt.ask("[blue]Create a 4-digit PIN [red](hidden)", password=True)
             if len(pin) == 4 and pin.isdigit():
                 break
             display_message("Invalid PIN. Please enter 4 digits.", "error")
@@ -379,6 +385,8 @@ class ATMGui:
         self.root.geometry("600x600")
         self.center_window()
 
+        self.button_pady = 7.5
+        
         self.main_frame = ttk.Frame(root, padding="10")
         self.main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 
@@ -386,6 +394,18 @@ class ATMGui:
         root.grid_columnconfigure(0, weight=1)
         self.main_frame.grid_rowconfigure(0, weight=1)
         self.main_frame.grid_columnconfigure(0, weight=1)
+
+        self.style = tbs.Style(theme="superhero")
+        self.style.configure("TButton", \
+                             background="#4997A9", \
+                             foreground="#F4F4F4", \
+                             borderwidth=1, \
+                             focuscolor="#75D1C5", \
+                             relief="flat", 
+                             width=20,
+                             padding=(10),
+                             font=('Segoe UI Variable Text Semibold', 9))
+        self.style.map("TButton", background=[('active', '#75D1C5')])
 
         self.init_frames()
         self.show_main_menu()
@@ -476,28 +496,33 @@ class ATMGui:
 
     def show_main_menu(self):
         self.clear_frames()
-        ttk.Label(self.main_menu_frame, text="ATM Banking System", font=('Helvetica', 16, 'bold')).grid(row=0, column=0, pady=20)
-        ttk.Button(self.main_menu_frame, text="Create Account", command=self.show_create_account).grid(row=1, column=0, pady=10)
-        ttk.Button(self.main_menu_frame, text="Login", command=self.show_login).grid(row=2, column=0, pady=10)
-        ttk.Button(self.main_menu_frame, text="Exit", command=self.root.destroy).grid(row=3, column=0, pady=10)
+        ttk.Label(self.main_menu_frame, text="ATM Banking System", font=('Segoe UI Variable Text Semibold', 16, 'bold')).grid(row=0, column=0, pady=20)
+        ttk.Button(self.main_menu_frame, text="Create Account", command=self.show_create_account).grid(row=1, column=0, pady=self.button_pady)
+        ttk.Button(self.main_menu_frame, text="Login", command=self.show_login).grid(row=2, column=0, pady=self.button_pady)
+        ttk.Button(self.main_menu_frame, text="Exit", command=self.root.quit).grid(row=3, column=0, pady=self.button_pady)
         self.main_menu_frame.grid(row=0, column=0)
 
     def show_create_account(self):
         self.clear_frames()
-        ttk.Label(self.create_account_frame, text="Create New Account", font=('Helvetica', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=20)
-        ttk.Label(self.create_account_frame, text="Full Name:").grid(row=1, column=0, pady=5)
+        ttk.Label(self.create_account_frame, text="Create New Account", font=('Segoe UI Variable Text Semibold', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=self.button_pady)
+        ttk.Label(self.create_account_frame, text="Full Name: ").grid(row=1, column=0, pady=5)
         name_entry = ttk.Entry(self.create_account_frame)
         name_entry.grid(row=1, column=1, pady=5)
-        ttk.Label(self.create_account_frame, text="PIN (4 digits):").grid(row=2, column=0, pady=5)
+        ttk.Label(self.create_account_frame, text="PIN (4 digits): ").grid(row=2, column=0, pady=5)
         pin_entry = ttk.Entry(self.create_account_frame, show="*")
         pin_entry.grid(row=2, column=1, pady=5)
-        ttk.Label(self.create_account_frame, text="Initial Deposit (₱):").grid(row=3, column=0, pady=5)
+        ttk.Label(self.create_account_frame, text="Initial Deposit (₱): ").grid(row=3, column=0, pady=5)
         deposit_entry = ttk.Entry(self.create_account_frame)
         deposit_entry.grid(row=3, column=1, pady=5)
 
         def create():
             name = name_entry.get()
             pin = pin_entry.get()
+
+            if not name or any(char.isdigit() for char in name):
+                messagebox.showerror("Error", "Invalid name")
+                return
+                    
             try:
                 initial_deposit = float(deposit_entry.get())
                 if len(pin) != 4 or not pin.isdigit():
@@ -520,13 +545,13 @@ class ATMGui:
             except ValueError:
                 messagebox.showerror("Error", "Invalid deposit amount")
 
-        ttk.Button(self.create_account_frame, text="Create Account", command=create).grid(row=4, column=0, columnspan=2, pady=20)
-        ttk.Button(self.create_account_frame, text="Back", command=self.show_main_menu).grid(row=5, column=0, columnspan=2)
+        ttk.Button(self.create_account_frame, text="Create Account", command=create).grid(row=4, column=0, columnspan=2, pady=self.button_pady)
+        ttk.Button(self.create_account_frame, text="Back", command=self.show_main_menu).grid(row=5, column=0, columnspan=2, pady=self.button_pady)
         self.create_account_frame.grid(row=0, column=0)
 
     def show_login(self):
         self.clear_frames()
-        ttk.Label(self.login_frame, text="Login", font=('Helvetica', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=20)
+        ttk.Label(self.login_frame, text="Login", font=('Segoe UI Variable Text Semibold', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=20)
         ttk.Label(self.login_frame, text="Account Number:").grid(row=1, column=0, pady=5)
         acc_entry = ttk.Entry(self.login_frame)
         acc_entry.grid(row=1, column=1, pady=5)
@@ -546,26 +571,26 @@ class ATMGui:
                     return
             messagebox.showerror("Error", "Invalid account number or PIN")
 
-        ttk.Button(self.login_frame, text="Login", command=login).grid(row=3, column=0, columnspan=2, pady=20)
+        ttk.Button(self.login_frame, text="Login", command=login).grid(row=3, column=0, columnspan=2, pady=self.button_pady)
         ttk.Button(self.login_frame, text="Back", command=self.show_main_menu).grid(row=4, column=0, columnspan=2)
         self.login_frame.grid(row=0, column=0)
 
     def show_banking_menu(self):
         self.clear_frames()
         account = accounts[current_account_index]
-        ttk.Label(self.banking_menu_frame, text=f"Welcome, {account['name']}", font=('Helvetica', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=20)
-        ttk.Label(self.banking_menu_frame, text=f"Balance: ₱{account['balance']:.2f}", font=('Helvetica', 12)).grid(row=1, column=0, columnspan=2, pady=10)
-        ttk.Button(self.banking_menu_frame, text="Deposit", command=lambda: self.show_transaction('deposit')).grid(row=2, column=0, pady=10)
-        ttk.Button(self.banking_menu_frame, text="Withdraw", command=lambda: self.show_transaction('withdraw')).grid(row=2, column=1, pady=10)
-        ttk.Button(self.banking_menu_frame, text="Transfer", command=lambda: self.show_transaction('transfer')).grid(row=3, column=0, pady=10)
-        ttk.Button(self.banking_menu_frame, text="Transaction History", command=self.show_history).grid(row=3, column=1, pady=10)
-        ttk.Button(self.banking_menu_frame, text="Change PIN", command=self.show_change_pin).grid(row=4, column=0, pady=10)
-        ttk.Button(self.banking_menu_frame, text="Logout", command=self.logout).grid(row=4, column=1, pady=10)
+        ttk.Label(self.banking_menu_frame, text=f"Welcome, {account['name']}", font=('Segoe UI Variable Text Semibold', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=20)
+        ttk.Label(self.banking_menu_frame, text=f"Balance: ₱{account['balance']:.2f}", font=('Segoe UI Variable Text Semibold', 12)).grid(row=1, column=0, columnspan=2, pady=5, padx=5)
+        ttk.Button(self.banking_menu_frame, text="Deposit", command=lambda: self.show_transaction('deposit')).grid(row=2, column=0, pady=5, padx=5)
+        ttk.Button(self.banking_menu_frame, text="Withdraw", command=lambda: self.show_transaction('withdraw')).grid(row=2, column=1, pady=5, padx=5)
+        ttk.Button(self.banking_menu_frame, text="Transfer", command=lambda: self.show_transaction('transfer')).grid(row=3, column=0, pady=5, padx=5)
+        ttk.Button(self.banking_menu_frame, text="Transaction History", command=self.show_history).grid(row=3, column=1, pady=5, padx=5)
+        ttk.Button(self.banking_menu_frame, text="Change PIN", command=self.show_change_pin).grid(row=4, column=0, pady=5, padx=5)
+        ttk.Button(self.banking_menu_frame, text="Logout", command=self.logout).grid(row=4, column=1, pady=5, padx=5)
         self.banking_menu_frame.grid(row=0, column=0)
 
     def show_change_pin(self):
         self.clear_frames()
-        ttk.Label(self.transaction_frame, text="Change PIN", font=('Helvetica', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=20)
+        ttk.Label(self.transaction_frame, text="Change PIN", font=('Segoe UI Variable Text Semibold', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=20)
         ttk.Label(self.transaction_frame, text="Current PIN:").grid(row=1, column=0, pady=5)
         current_pin_entry = ttk.Entry(self.transaction_frame, show="*")
         current_pin_entry.grid(row=1, column=1, pady=5)
@@ -605,7 +630,7 @@ class ATMGui:
 
     def show_transaction(self, trans_type):
         self.clear_frames()
-        ttk.Label(self.transaction_frame, text=f"{trans_type.title()}", font=('Helvetica', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=20)
+        ttk.Label(self.transaction_frame, text=f"{trans_type.title()}", font=('Segoe UI Variable Text Semibold', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=20)
 
         if trans_type == 'transfer':
             ttk.Label(self.transaction_frame, text="Recipient Account:").grid(row=1, column=0, pady=5)
@@ -641,7 +666,7 @@ class ATMGui:
 
     def show_history(self):
         self.clear_frames()
-        ttk.Label(self.transaction_frame, text="Transaction History", font=('Helvetica', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=20)
+        ttk.Label(self.transaction_frame, text="Transaction History", font=('Segoe UI Variable Text Semibold', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=20)
 
         text_widget = tk.Text(self.transaction_frame, height=15, width=50)
         text_widget.grid(row=1, column=0, columnspan=2, pady=10)
@@ -758,7 +783,9 @@ def choose_interface():
     return choice
 
 def main_program():
-
+    # root = tk.Tk()
+    # app = ATMGui(root)
+    # root.mainloop()
     while True:
         choice = choose_interface()
 
@@ -771,6 +798,7 @@ def main_program():
             clear_screen()
             display_message("Starting GUI Interface...", "success")
             time.sleep(1)
+            print("running")
             root = tk.Tk()
             app = ATMGui(root)
             root.mainloop()
