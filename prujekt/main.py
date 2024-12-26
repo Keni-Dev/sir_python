@@ -1,7 +1,6 @@
 import random, os, sys, time
 import tkinter as tk
 import ttkbootstrap as tbs
-import customtkinter
 from tkinter import ttk, messagebox
 from datetime import datetime
 from PIL import Image, ImageDraw, ImageFont
