@@ -54,175 +54,6 @@ def generate_receipt(transaction_type, account, amount=None, recipient=None):
     print("=" * 40 + "\n")
 
 
-# --- Console Interface ---
-def run_console():
-    while True:
-        print("\n=== ATM Banking System ===")
-        print("1. Create Account")
-        print("2. Login")
-        print("3. Exit")
-
-        choice = input("Enter your choice (1-3): ")
-
-        if choice == "1":
-            print("\n=== Create New Account ===")
-            name = input("Enter your full name: ")
-
-            while True:
-                pin = input("Create a 4-digit PIN: ")
-                if len(pin) == 4 and pin.isdigit():
-                    break
-                print("Invalid PIN. Please enter 4 digits.")
-
-            initial_deposit = float(input("Enter initial deposit amount: ₱"))
-
-            account = {
-                'account_number': generate_account_number(),
-                'name': name,
-                'pin': pin,
-                'balance': initial_deposit,
-                'transaction_history': []
-            }
-
-            accounts.append(account)
-
-            print("\nAccount created successfully!")
-            generate_receipt("ACCOUNT CREATION", account, initial_deposit)
-        elif choice == "2":
-            print("\n=== Login ===")
-            account_number = input("Enter account number: ")
-            pin = input("Enter PIN: ")
-            global current_account_index
-            for i, account in enumerate(accounts):
-                if account['account_number'] == account_number and account['pin'] == pin:
-                    current_account_index = i
-                    print(f"\nWelcome, {account['name']}!")
-                    while True:
-                        print("\n=== Main Menu ===")
-                        print("1. Check Balance")
-                        print("2. Deposit")
-                        print("3. Withdraw")
-                        print("4. Transfer")
-                        print("5. Transaction History")
-                        print("6. Change PIN")
-                        print("7. Logout")
-
-                        operation = input("Enter your choice (1-7): ")
-                        if operation == "1":
-                            if current_account_index is None:
-                                print("You are not logged in.")
-                            else:
-                                account = accounts[current_account_index]
-                                print(f"\nCurrent Balance: ₱{account['balance']:.2f}")
-                                generate_receipt("BALANCE INQUIRY", account)
-                        elif operation == "2":
-                            if current_account_index is None:
-                                print("You are not logged in.")
-                            else:
-                                amount = float(input("\nEnter deposit amount: ₱"))
-                                if amount <= 0:
-                                    print("Invalid amount.")
-                                else:
-                                    accounts[current_account_index]['balance'] += amount
-                                    add_transaction(current_account_index, "DEPOSIT", amount)
-                                    print(f"Deposit successful. New balance: ₱{accounts[current_account_index]['balance']:.2f}")
-                                    generate_receipt("DEPOSIT", accounts[current_account_index], amount)
-                        elif operation == "3":
-                            if current_account_index is None:
-                                print("You are not logged in.")
-                            else:
-                                amount = float(input("\nEnter withdrawal amount: ₱"))
-                                if amount <= 0:
-                                    print("Invalid amount.")
-                                elif amount > accounts[current_account_index]['balance']:
-                                    print("Insufficient funds.")
-                                else:
-                                    accounts[current_account_index]['balance'] -= amount
-                                    add_transaction(current_account_index, "WITHDRAWAL", amount)
-                                    print(f"Withdrawal successful. New balance: ₱{accounts[current_account_index]['balance']:.2f}")
-                                    generate_receipt("WITHDRAWAL", accounts[current_account_index], amount)
-                        elif operation == "4":
-                            if current_account_index is None:
-                                print("You are not logged in.")
-                            else:
-                                recipient_acc = input("\nEnter recipient's account number: ")
-                                recipient_index = None
-
-                                for i, account in enumerate(accounts):
-                                    if account['account_number'] == recipient_acc:
-                                        recipient_index = i
-                                        break
-
-                                if recipient_index is None:
-                                    print("Recipient account not found.")
-                                else:
-                                    amount = float(input("Enter transfer amount: ₱"))
-                                    if amount <= 0:
-                                        print("Invalid amount.")
-                                    elif amount > accounts[current_account_index]['balance']:
-                                        print("Insufficient funds.")
-                                    else:
-                                        accounts[current_account_index]['balance'] -= amount
-                                        accounts[recipient_index]['balance'] += amount
-                                        add_transaction(current_account_index, "TRANSFER", amount, recipient_acc)
-                                        add_transaction(recipient_index, "TRANSFER RECEIVED", amount, accounts[current_account_index]['account_number'])
-                                        print(f"Transfer successful. New balance: ₱{accounts[current_account_index]['balance']:.2f}")
-                                        generate_receipt("TRANSFER", accounts[current_account_index], amount, accounts[recipient_index])
-                        elif operation == "5":
-                            if current_account_index is None:
-                                print("You are not logged in.")
-                            else:
-                                print("\n=== Transaction History ===")
-                                for transaction in accounts[current_account_index]['transaction_history']:
-                                    print(f"\nType: {transaction['type']}")
-                                    print(f"Amount: ₱{transaction['amount']:.2f}")
-                                    print(f"Date: {transaction['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}")
-                                    print(f"Balance After: ₱{transaction['balance_after']:.2f}")
-                                    if transaction['recipient']:
-                                        print(f"Recipient: {transaction['recipient']}")
-                                    print("-" * 40)
-                        elif operation == "6":
-                            if current_account_index is None:
-                                print("You are not logged in.")
-                            else:
-                                account = accounts[current_account_index]
-
-                                # Verify current PIN
-                                current_pin = input("\nEnter your current PIN: ")
-                                if current_pin != account['pin']:
-                                    print("Incorrect current PIN.")
-                                else:
-                                    while True:
-                                        new_pin = input("Enter your new 4-digit PIN: ")
-                                        if len(new_pin) != 4 or not new_pin.isdigit():
-                                            print("Invalid PIN. Please enter 4 digits.")
-                                            continue
-                                        confirm_pin = input("Confirm your new PIN: ")
-                                        if new_pin != confirm_pin:
-                                            print("PINs do not match. Please try again.")
-                                            continue
-                                        break
-
-                                    account['pin'] = new_pin
-                                    add_transaction(current_account_index, "PIN CHANGE", 0)
-                                    print("PIN changed successfully.")
-                                    generate_receipt("PIN CHANGE", account)
-                        elif operation == "7":
-                            current_account_index = None
-                            print("Logged out successfully.")
-                            break
-                        else:
-                            print("Invalid choice. Please try again.")
-                    return True
-            print("Invalid account number or PIN.")
-            current_account_index = None
-            return False
-        elif choice == "3":
-            print("Thank you for using our ATM Banking System.")
-            break
-        else:
-            print("Invalid choice. Please try again.")
-
 # --- TUI (Rich) Interface ---
 def run_tui():
     console = Console()
@@ -915,10 +746,9 @@ def choose_interface():
     display_header("ATM Banking System - Interface Selection")
     
     options = {
-        "1": "Console Interface (Simple text-based)",
-        "2": "TUI Interface (Rich text interface)",
-        "3": "GUI Interface (Graphical interface)",
-        "4": "Exit"
+        "1": "TUI Interface (Rich text interface)",
+        "2": "GUI Interface (Graphical interface)",
+        "3": "Exit"
     }
     
     for key, value in options.items():
@@ -934,22 +764,17 @@ def main_program():
 
         if choice == "1":
             clear_screen()
-            display_message("Starting Console Interface...", "success")
-            time.sleep(1)
-            run_console()
-        elif choice == "2":
-            clear_screen()
             display_message("Starting TUI Interface...", "success")
             time.sleep(1)
             run_tui()
-        elif choice == "3":
+        elif choice == "2":
             clear_screen()
             display_message("Starting GUI Interface...", "success")
             time.sleep(1)
             root = tk.Tk()
             app = ATMGui(root)
             root.mainloop()
-        elif choice == "4":
+        elif choice == "3":
             clear_screen()
             display_message("Thank you for using the ATM Banking System!", "success")
             time.sleep(1)
