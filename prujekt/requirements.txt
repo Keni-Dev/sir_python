@@ -6,3 +6,5 @@ tk>=0.1.0
 
 # for tui
 rich>=13.0.0
+
+ttkbootstrap
