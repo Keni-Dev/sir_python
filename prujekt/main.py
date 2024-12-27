@@ -1,3 +1,13 @@
+# Group 2 Computer Programming 1 Project
+# Leader: Zamora, Kenny Ivan S.A.
+# Members:
+# Autor, Kristian Clint M.
+# Cabuhat, Joseph A.
+# Elduayan, Michael Alorenz M.
+# Mateo, Olive Rose SJ.
+# Nicolas, Yangel Mica P.
+# San Jose, Laurice Ann DC.
+
 import random, os, sys, time
 import tkinter as tk
 import ttkbootstrap as tbs
@@ -770,7 +780,7 @@ def choose_interface():
     display_header("ATM Banking System - Interface Selection")
     
     options = {
-        "1": "TUI Interface (Rich text interface)",
+        "1": "Console User Interface (CUI)",
         "2": "GUI Interface (Graphical interface)",
         "3": "Exit"
     }
@@ -790,7 +800,7 @@ def main_program():
 
         if choice == "1":
             clear_screen()
-            display_message("Starting TUI Interface...", "success")
+            display_message("Starting CUI Interface...", "success")
             time.sleep(1)
             run_tui()
         elif choice == "2":
