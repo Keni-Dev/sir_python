@@ -849,6 +849,7 @@ def main_program():
             root = tk.Tk()
             app = ATMGui(root)
             root.mainloop()
+            break
         elif choice == "3":
             clear_screen()
             display_message("Thank you for using the ATM Banking System!", "success")
