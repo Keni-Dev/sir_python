@@ -1,5 +1,5 @@
 """
-Its best to run this file po on cmd, lalo na po for tui dahil po sa size and to avoid scrolling po. Make sure to avoid scrolling.
+Its best to run this file po on cmd, lalo na po for cui dahil po sa size and to avoid scrolling po. Make sure to avoid scrolling.
 
 Make sure po to run this installation sa kahit anong terminal, before running the code
 
