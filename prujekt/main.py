@@ -193,8 +193,17 @@ def run_tui():
 
         while True:
             name = Prompt.ask("[blue]Enter your full name")
-            if not name or any(char.isdigit() for char in name):
-                display_message("Invalid name.", "error")
+            # Check if name contains only letters, spaces and dots
+            if not name or not all(char.isalpha() or char.isspace() or char == '.' for char in name):
+                display_message("Invalid name. Use only letters, spaces and dots.", "error")
+                continue
+            # Check if name starts and ends with a letter
+            if not name[0].isalpha() or not name[-1].isalpha():
+                display_message("Name must start and end with a letter.", "error")
+                continue
+            # Check for consecutive dots or spaces
+            if '..' in name or '  ' in name:
+                display_message("Name cannot contain consecutive dots or spaces.", "error")
                 continue
             break
 
@@ -209,6 +218,7 @@ def run_tui():
                 display_message("PINs do not match. Please try again.", "error")
                 continue
             break
+
         while True:
             initial_deposit = FloatPrompt.ask("[blue]Enter initial deposit amount (₱)")
             if initial_deposit > 0:
@@ -558,14 +568,24 @@ class ATMGui:
         deposit_entry.grid(row=4, column=1, pady=5)
 
         def create():
-            name = name_entry.get()
+            name = name_entry.get().strip()
             pin = pin_entry.get()
             confirm_pin = confirm_pin_entry.get()
 
-            if not name or any(char.isdigit() for char in name):
-                messagebox.showerror("Error", "Invalid name")
+            # Validate name
+            if not name:
+                messagebox.showerror("Error", "Name cannot be empty")
                 return
-                        
+            if not all(char.isalpha() or char.isspace() or char == '.' for char in name):
+                messagebox.showerror("Error", "Name can only contain letters, spaces and dots")
+                return
+            if not name[0].isalpha() or not name[-1].isalpha():
+                messagebox.showerror("Error", "Name must start and end with a letter")
+                return
+            if '..' in name or '  ' in name:
+                messagebox.showerror("Error", "Name cannot contain consecutive dots or spaces")
+                return
+                    
             try:
                 initial_deposit = float(deposit_entry.get())
                 if len(pin) != 4 or not pin.isdigit():
