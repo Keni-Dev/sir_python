@@ -226,7 +226,7 @@ def run_tui():
         }
 
         accounts.append(account)
-        display_message(f"Account created successfully!\nYour account number is: {account['account_number']}", "success")
+        display_message(f"Account created successfully!\nYour account number is: {account['account_number']} \nMake sure to remember this!", "success")
         generate_receipt_tui("ACCOUNT CREATION", account, initial_deposit)
 
     def check_balance_tui():
