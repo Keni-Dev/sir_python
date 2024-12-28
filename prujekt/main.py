@@ -1,3 +1,15 @@
+"""
+Its best to run this file po on cmd, lalo na po for tui dahil po sa size and to avoid scrolling po. Make sure to avoid scrolling.
+
+Make sure po to run this installation sa kahit anong terminal, before running the code
+
+    pip install tk ttkbootstrap pillow rich
+
+"""
+
+
+
+
 # Group 2 Computer Programming 1 Project
 # Leader: Zamora, Kenny Ivan S.A.
 # Members:
@@ -65,7 +77,7 @@ def generate_receipt(transaction_type, account, amount=None, recipient=None):
     print("=" * 40 + "\n")
 
 
-# --- TUI (Rich) Interface ---
+# --- (Rich) CUI Interface or TUI (Text-based User Interface) ---
 def run_tui():
     console = Console()
     HEADER_STYLE = Style(color="blue", bold=True)
@@ -188,11 +200,22 @@ def run_tui():
 
         while True:
             pin = Prompt.ask("[blue]Create a 4-digit PIN [red](hidden)", password=True)
-            if len(pin) == 4 and pin.isdigit():
+            if len(pin) != 4 or not pin.isdigit():
+                display_message("Invalid PIN. Please enter 4 digits.", "error")
+                continue
+                
+            confirm_pin = Prompt.ask("[blue]Confirm your PIN [red](hidden)", password=True)
+            if pin != confirm_pin:
+                display_message("PINs do not match. Please try again.", "error")
+                continue
+            break
+        while True:
+            initial_deposit = FloatPrompt.ask("[blue]Enter initial deposit amount (₱)")
+            if initial_deposit > 0:
                 break
-            display_message("Invalid PIN. Please enter 4 digits.", "error")
-
-        initial_deposit = FloatPrompt.ask("[blue]Enter initial deposit amount (₱)")
+            else: 
+                display_message("Initial deposit must be positive", "error")
+                continue
 
         account = {
             'account_number': generate_account_number(),
@@ -275,6 +298,10 @@ def run_tui():
 
         recipient_acc = Prompt.ask("[blue]Enter recipient's account number")
         recipient_index = None
+
+        if recipient_acc == account[current_account_index]['account_number']:
+            display_message("Can't be transferred in own account", "error")
+            return
 
         for i, account in enumerate(accounts):
             if account['account_number'] == recipient_acc:
@@ -508,9 +535,12 @@ class ATMGui:
         ttk.Label(self.main_menu_frame, text="ATM Banking System", font=('Segoe UI Variable Text Semibold', 16, 'bold')).grid(row=0, column=0, pady=20)
         ttk.Button(self.main_menu_frame, text="Create Account", command=self.show_create_account).grid(row=1, column=0, pady=self.button_pady)
         ttk.Button(self.main_menu_frame, text="Login", command=self.show_login).grid(row=2, column=0, pady=self.button_pady)
-        ttk.Button(self.main_menu_frame, text="Exit", command=self.root.quit).grid(row=3, column=0, pady=self.button_pady)
+        ttk.Button(self.main_menu_frame, text="Exit", command=self.quit).grid(row=3, column=0, pady=self.button_pady)
         self.main_menu_frame.grid(row=0, column=0)
 
+    def quit(self):
+        self.root.quit()
+        sys.exit(0)
     def show_create_account(self):
         self.clear_frames()
         ttk.Label(self.create_account_frame, text="Create New Account", font=('Segoe UI Variable Text Semibold', 14, 'bold')).grid(row=0, column=0, columnspan=2, pady=self.button_pady)
@@ -520,22 +550,29 @@ class ATMGui:
         ttk.Label(self.create_account_frame, text="PIN (4 digits): ").grid(row=2, column=0, pady=5)
         pin_entry = ttk.Entry(self.create_account_frame, show="*")
         pin_entry.grid(row=2, column=1, pady=5)
-        ttk.Label(self.create_account_frame, text="Initial Deposit (₱): ").grid(row=3, column=0, pady=5)
+        ttk.Label(self.create_account_frame, text="Confirm PIN: ").grid(row=3, column=0, pady=5)
+        confirm_pin_entry = ttk.Entry(self.create_account_frame, show="*")
+        confirm_pin_entry.grid(row=3, column=1, pady=5)
+        ttk.Label(self.create_account_frame, text="Initial Deposit (₱): ").grid(row=4, column=0, pady=5)
         deposit_entry = ttk.Entry(self.create_account_frame)
-        deposit_entry.grid(row=3, column=1, pady=5)
+        deposit_entry.grid(row=4, column=1, pady=5)
 
         def create():
             name = name_entry.get()
             pin = pin_entry.get()
+            confirm_pin = confirm_pin_entry.get()
 
             if not name or any(char.isdigit() for char in name):
                 messagebox.showerror("Error", "Invalid name")
                 return
-                    
+                        
             try:
                 initial_deposit = float(deposit_entry.get())
                 if len(pin) != 4 or not pin.isdigit():
                     messagebox.showerror("Error", "PIN must be 4 digits")
+                    return
+                if pin != confirm_pin:
+                    messagebox.showerror("Error", "PINs do not match")
                     return
                 if initial_deposit <= 0:
                     messagebox.showerror("Error", "Initial deposit must be positive")
@@ -549,13 +586,13 @@ class ATMGui:
                     'transaction_history': []
                 }
                 accounts.append(account)
-                messagebox.showinfo("Success", f"Account created successfully!\nYour account number is: {account['account_number']}")
+                messagebox.showinfo("Success", f"Account created successfully!\nYour account number is: {account['account_number']} \nMake sure to remember this!")
                 self.show_main_menu()
             except ValueError:
                 messagebox.showerror("Error", "Invalid deposit amount")
 
-        ttk.Button(self.create_account_frame, text="Create Account", command=create).grid(row=4, column=0, columnspan=2, pady=self.button_pady)
-        ttk.Button(self.create_account_frame, text="Back", command=self.show_main_menu).grid(row=5, column=0, columnspan=2, pady=self.button_pady)
+        ttk.Button(self.create_account_frame, text="Create Account", command=create).grid(row=5, column=0, columnspan=2, pady=self.button_pady)
+        ttk.Button(self.create_account_frame, text="Back", command=self.show_main_menu).grid(row=6, column=0, columnspan=2, pady=self.button_pady)
         self.create_account_frame.grid(row=0, column=0)
 
     def show_login(self):
@@ -803,6 +840,7 @@ def main_program():
             display_message("Starting CUI Interface...", "success")
             time.sleep(1)
             run_tui()
+            break
         elif choice == "2":
             clear_screen()
             display_message("Starting GUI Interface...", "success")
